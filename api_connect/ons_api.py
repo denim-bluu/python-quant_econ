@@ -1,3 +1,4 @@
+#%%
 import pandas as pd
 import requests
 
@@ -7,13 +8,23 @@ class OnsApi:
         self.timeseries_id = timeseries_id
         self.dataset_id = dataset_id
         self.endpoint = "https://api.ons.gov.uk/timeseries"
-        self.freq = ["months", "quarters", "years"]
+        self.date_freq = None
+        self.interporlated = None
         self._get_content()
+        
+    def __repr__(self):
+        api = "ONS"
+        data_id = f"Dataset ID: {self.dataset_id}"
+        ts_id = f"Timeseries ID: {self.timeseries_id}"
+        date_freq = f"Date Frequency: {self.date_freq}"
+        interporlated = f"Interpolation: {self.interporlated}"
+        return " / ".join([api, data_id, ts_id, date_freq, interporlated])
 
     def _get_content(self):
         self.url = (
             f"{self.endpoint}/{self.timeseries_id}/dataset/{self.dataset_id}/data"
         )
+
         self.req = requests.get(self.url)
 
         if self.req.status_code == 404:
@@ -23,8 +34,25 @@ class OnsApi:
         else:
             self.content = self.req.json()
 
+    def _freq(self, date_freq, shift=0):
+        """ ONS API requires frequency inputs to be months / quarters / years.
+        For consistency, this class inputs for frequency are m / q / y.
+        Hence, re-mapping the m / q / y user inputs to months / quarters / years.
+        Also, allowing the user to the next frequency in the list with 'shift' argument.
+
+        Args:
+            date_freq (str): m / q / y
+            n (int, optional): Index shift to an alternative frequency. Defaults to 0.
+
+        Returns:
+            str: ONS frequency.
+        """
+        freq = {"m": "months", "q": "quarters", "y": "years"}
+        freq_index = list(freq).index(date_freq)
+        return list(freq.values())[freq_index + shift]
+
     @staticmethod
-    def _date_parser(df) -> pd.DatetimeIndex:
+    def _date_parser(df):
         """ Parse Quarterly / Monthly date format and retrieve
         period date index.
 
@@ -48,17 +76,37 @@ class OnsApi:
         df = df.set_index("DATE")[[self.timeseries_id]]
         return df
 
-    def get_ts(self, date_freq):
-        # If date_interval param is not supported.
-        if not self.content.get(date_freq):
-            _index = self.freq.index(date_freq)
+    def _interporlate_ts(self, df, date_freq):
+        """ Interpolate Time-series (date-indexed) dataframe.
 
-            if _index == len(self.freq) - 1:
-                raise ValueError("Something is wrong...")
+        Args:
+            df (pandas.DataFrame): Time-series dataframe.
+            date_freq (str): Resampling frequency (m/q/y)
 
-            # Interpolate with higher date interval.
-            _df = self._ts_df(self.freq[_index + 1])
-            return _df.resample(date_freq[0]).interpolate(
-                method="spline", order=3, s=0.0
-            )
-        return self._ts_df(date_freq)
+        Returns:
+            pd.DataFrame: Interporlated time-series dataframe.
+        """
+        self.interporlated = True
+        return df.resample(date_freq).interpolate(method="spline", order=3, s=0.0)
+
+    def get_time_series(self, date_freq):
+        """ Retrieve time-series dataframe based on input date frequency.
+        
+        If date frequency input is more granular than the available date frequency, 
+        interporlation is conducted.
+
+        Args:
+            date_freq (str): m / q / y
+
+        Returns:
+            pandas.DataFrame: Time-series dataframe.
+        """
+        self.date_freq = date_freq
+        # If date_interval param is not included.
+        if not self.content.get(self._freq(date_freq)):
+            _df = self._ts_df(self._freq(date_freq, 1))
+            return self._interporlate_ts(_df, date_freq)
+        return self._ts_df(self._freq(date_freq))
+
+
+# %%
