@@ -1,5 +1,6 @@
 # %%
 import model_diagnos as md
+import numpy as np
 import ts_analysis as tsa
 import pandas as pd
 import statsmodels.api as sm
@@ -27,7 +28,9 @@ ons_df = db_connector.retrieve_data("ONS", ONS_VARS, "q")
 hmlr_df = db_connector.retrieve_data("HMLR", HMLR_VARS, "q")
 
 df = pd.concat([ons_df, hmlr_df], axis=1)
+df["ABMI"] = np.log(df["ABMI"])
 df = df.pct_change().dropna()
+
 #%%
 md.cointegration_test(df)
 
@@ -58,5 +61,7 @@ diagnos.serial_corr_resid("MGSX")
 diagnos.serial_corr_resid("ABMI")
 diagnos.serial_corr_resid("housePriceIndex")
 
+
+# %%
 
 # %%
