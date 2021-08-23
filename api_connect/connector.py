@@ -5,41 +5,19 @@ from api_connect.boe_api import BoeApi
 from api_connect.hmlr_api import HmlrApi
 import pandas as pd
 
-# # Single instance examples.
-# a = OnsApi("QNA", "ABMI")
-# b = BoeApi("LPMVQJW")
-# c = HmlrApi("housePriceIndex")
-# Collated example.
-
-# # Multiple instances examples.
-# ONS_VARS = [
-#     {"dataset_id": "LMS", "timeseries_id": "MGSX"},
-#     {"dataset_id": "PN2", "timeseries_id": "ABMI"},
-# ]
-# BOE_VARS = [{"series_code": "XUDLUSS"}, {"series_code": "LPMVQJW"}]
-
-# HMLR_VARS = [
-#     {"query_var": "percentageAnnualChange", "region": "united-kingdom"},
-#     {"query_var": "averagePrice", "region": "united-kingdom"},
-#     {"query_var": "housePriceIndex", "region": "united-kingdom"},
-#     {"query_var": "housePriceIndexSA", "region": "united-kingdom"},
-# ]
-
-# ons = retrieve_data(OnsApi, ONS_VARS, "months")
-# boe = retrieve_data(BoeApi, BOE_VARS, "months")
-# hmlr = retrieve_data(HmlrApi, HMLR_VARS, "months")
-
 class DataBank:
     def __init__(self):
-        self.registered_apis = {}
+        self.registered_apis = {"ONS": OnsApi,
+                                "BOE": BoeApi,
+                                "HMLR": HmlrApi}
         self.data_log = []
         
-    def __repr__(self) -> str:
-        pass
+    def __repr__(self):
+        return str(self.registered_apis)
     
     def register_api(self, api_name, api_obj):
         self.registered_apis[api_name] = api_obj
-        
+    
     @staticmethod
     def _check_date_interval(date_interval):
         if date_interval not in ["m", "q", "y"]:
@@ -55,12 +33,7 @@ class DataBank:
             self.data_log.append(repr(_api_obj))
         return pd.concat(dfs, axis=1)
     
-    def reset(self):
-        self.registered_apis = {}
+    def reset_log(self):
         self.data_log = []
     
-        
-db_connector = DataBank()
-db_connector.register_api("ONS", OnsApi)
-db_connector.register_api("BOE", BoeApi)
-db_connector.register_api("HMLR", HmlrApi)
+# %%
