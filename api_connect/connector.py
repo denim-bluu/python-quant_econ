@@ -55,6 +55,10 @@ class DataBank:
             self.data_log.append(repr(_api_obj))
         return pd.concat(dfs, axis=1)
     
+    def reset(self):
+        self.registered_apis = {}
+        self.data_log = []
+    
         
 db_connector = DataBank()
 db_connector.register_api("ONS", OnsApi)

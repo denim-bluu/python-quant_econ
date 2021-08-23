@@ -2,6 +2,7 @@
 from matplotlib import pyplot as plt
 import pandas as pd
 import statsmodels.api as sm
+from statsmodels.tsa.deterministic import DeterministicProcess
 
 def ts_plot(df):
     """ Time-series plot(s).
@@ -76,10 +77,21 @@ def adf_test(df, regression="c", ci=0.05):
         output.append(res_dict)
     return pd.DataFrame(output)
 
-def seasonal_decomp(df, period, model: str = "additive"):
+def seasonal_decomp(df, period, model= "additive"):
     for var in df.columns:
         try:
             res = sm.tsa.seasonal_decompose(df[var], model=model, period=period)
             res.plot()
         except:
             print(f"Variable: {var} faced an error. Please conduct the decomposition separately for debugging.")
+
+
+def seasonal_adjustment(t_series, period, model="additive"):
+    res = sm.tsa.seasonal_decompose(t_series, model=model, period=period)
+    if model == "additive":
+        sa_series = t_series - res.seasonal
+    elif model == "multiplicative":
+        sa_series = t_series/res.seasonal
+    else:
+        raise ValueError("Decomposition model type is wrong.")
+    return sa_series.rename(f"{t_series.name}_SA")
