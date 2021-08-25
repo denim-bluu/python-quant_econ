@@ -1,4 +1,3 @@
-
 # Macroeconomics variable list
 
 ## Unsecured
@@ -33,9 +32,24 @@
     - Taxes on income and wealth: UKEA/RPLA (ONS)
 
 
-2. 
+2. UK Corporate Profits 
+   : UK corporate nominal profits (nominal GDP minus pre-tax labour income, £m.
+
+    $$
+    \text{Corporate Profits} = \text{Nominal GDP} - \text{Pre-tax labour income}
+    $$
+
+    - PN2/YBHA (ONS)
+    - UKEA/ROYJ (ONS)
+    - UKEA/ROYH (ONS)
+    - UKEA/ROYK (ONS)
+
 
 ## Others
 
 - CPIH: MM23 / L55O (ONS)
 - Total Lending to PNFCs = UKEA/NLBC + UKEA/NKZA (ONS)
+- UK CPI: MM23/D7BT (ONS)
+- UK unemployment rate: LMS/MGSX (ONS)
+- UK household income: UKEA/RPQK
+-
