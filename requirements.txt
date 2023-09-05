@@ -200,7 +200,7 @@ patsy=0.5.1=py39hecd8cb5_0
 pep8=1.7.1=py39hecd8cb5_0
 pexpect=4.8.0=pyhd3eb1b0_3
 pickleshare=0.7.5=pyhd3eb1b0_1003
-pillow=8.2.0=py39h5270095_0
+pillow=8.3.2=py39h5270095_0
 pip=21.0.1=py39hecd8cb5_0
 pkginfo=1.7.0=py39hecd8cb5_0
 plotly=5.1.0=pyhd3eb1b0_0
